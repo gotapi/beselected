@@ -1,0 +1,25 @@
+{
+  "name": "beselected",
+  "version": "1.0.0",
+  "description": "帮助您快速设定一个在网页上划词触发特定逻辑的应用。",
+  "main": "beselected.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/gotapi/beselected.git"
+  },
+  "keywords": [
+    "popup",
+    "select",
+    "selected",
+    "mouseup"
+  ],
+  "author": "gotapi",
+  "license": "BSD 3.0",
+  "bugs": {
+    "url": "https://github.com/gotapi/beselected/issues"
+  },
+  "homepage": "https://github.com/gotapi/beselected#readme"
+}
