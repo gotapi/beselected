@@ -4,6 +4,14 @@
 
 用法:
 
+给要触发选中即popup出来小应用的段落或是div等容器加上gotapi_share 这个class:
+
+```
+<div class="gotapi_share">
+	选中这里的一段文字，即可看效果
+</div>
+``
+
 ```javascript
 import beselected from 'beselected'
     let se = (beselected())
@@ -13,3 +21,4 @@ import beselected from 'beselected'
         }
 })
 ``` 
+
