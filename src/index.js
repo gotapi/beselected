@@ -1,6 +1,9 @@
-import listen from "./listen";
+import pida from "./pida"
 
 export default () => {
+    let obj = {
+        selectedText:""
+    }
     let rootId = "b-drag-div"
     let E = "bsMorePanelHolder"
     let u = !1, q, p, o;
@@ -34,13 +37,16 @@ export default () => {
         a += ".gotapi-drag-wrapper .gotapi-list .gotapiicon {width:24px;height:24px;margin:0 auto;display:block;}\n";
         a += ".gotapi-drag-wrapper .gotapi-popup-content { padding-top:15px; \n}";
         loadStyle(a);
-        listen(document.body,"click",(evt)=>{
+        pida.addListener(document.body,"click",(evt)=>{
             if(evt.target.getAttribute("data-close")) {
+
                 let target = evt.target.getAttribute("data-target")
+                console.log(pida.$("#"+target));
+
                 try {
-                    let node = document.getElementById(target);
-                    console.log(node);
-                    node.style.display = "none";
+                    obj.shown = false;
+                    pida.$("#"+target).hide();
+
                 } catch (e) {
 
                 }
@@ -52,7 +58,7 @@ export default () => {
         c = c + '<span class="gotapi-drag-arrow BSHARE_IMAGE_NO"></span>';
         c = c + '<div class="gotapi-drag-wrapper">'
         c = c +     '<div class="gotapicaptain">'
-            + '<a class="gpclose" title="close" ><img data-close="true" src="/assets/close.svg" widht="22" height="22" class="data-close-popup" data-target="'+rootId+'"/></a></div>'
+            + '<a class="gpclose" title="close" ><img data-close="true" src="https://static.yuanfenxi.com/gshare/close.svg" widht="22" height="22" class="data-close-popup" data-target="'+rootId+'"/></a></div>'
 
       c += "<div class='gotapi-popup-content'>"
 
@@ -63,7 +69,7 @@ export default () => {
         +'<div class="gotapi-bottom"><span>Gotapi提供划词支持...</span>'
            + '</div>'+"</div></div>";
     }
-    const defaultMainHandler = () => {
+    const defaultMainHandler = (selectedText) => {
         return "这是一段需要自定义的文字";
     }
     const position = (a) => {
@@ -72,36 +78,37 @@ export default () => {
             top: a.pageY || a.clientY + eventCallbacks.scrollTop - eventCallbacks.clientTop
         }
     }
+    const getSelectText = ()=>{
+        let selectedText = "";
+        if (window.getSelection) {
+            selectedText = window.getSelection().toString();
+        } else if (document.getSelection) {
+            selectedText = document.getSelection();
+        } else if (document.selection) try {
+            selectedText = document.selection.createRange().text
+        } catch (c) {
+        }
+        return selectedText;
+    }
 
     const eventCallbacks = {
         onmousedown: function (a) {
-            console.log("mousedown")
             p = position(a || window.event)
         },
         onmouseup: function (event) {
-            console.log("mouse up ")
             event = event || window.event;
             q = position(event);
             if (!p || !q || p.left !== q.left || p.top !== q.top) {
                 u = true;
             }
-            let selectedText;
-            if (window.getSelection) {
-                selectedText = window.getSelection().toString();
-            } else if (document.getSelection) {
-                selectedText = document.getSelection();
-            } else if (document.selection) try {
-                selectedText = document.selection.createRange().text
-            } catch (c) {
-            }
-            console.log("selectedText" + selectedText);
-            if (selectedText.length !== 0 && u) {
+            let selectedText = getSelectText();
+            if (selectedText.length !== 0 && u &&!obj.shown) {
                 let point = position(event);
+                obj.selectedText = selectedText;
                 setTimeout(function () {
-                    let j = document.getElementById(rootId);
-                    j.style.top = point.top + 15 + "px";
-                    j.style.left = point.left - 40 + "px";
-                    j.style.display = "inline-block"
+                    defaultPopupCallback(point);
+                    obj.options.popupCallback(point);
+                    obj.shown = true;
                 }, 100);
                 u = !1;
                 stopProp(event)
@@ -110,6 +117,21 @@ export default () => {
         }
     };
 
+    const getHTML = ()=>{
+        let options = obj.options;
+        return options.leftHandler(options) + options.mainHandler(options,getSelectText()) + options.rightHandler(options);
+    }
+
+    const defaultPopupCallback = (point)=>{
+        let j = document.getElementById(rootId);
+        j.style.top = point.top + 15 + "px";
+        j.style.left = point.left - 40 + "px";
+        j.style.display = "inline-block"
+    }
+
+    const getPopupElement= ()=>{
+        return document.getElementById(rootId);
+    }
     const setup = (options) => {
         if (!options.setupHandler) {
             options.setupHandler = defaultSetup;
@@ -123,8 +145,16 @@ export default () => {
         if (!options.rightHandler) {
             options.rightHandler = defaultRightHandler;
         }
+        if (!options.popupCallback) {
+            options.popupCallback = defaultPopupCallback;
+        }
+        if(!options.trigger) {
+            options.trigger = ".gotapi-share"
+        }
+        console.log(options)
         options.setupHandler(options);
-        let html = options.leftHandler(options) + options.mainHandler(options) + options.rightHandler(options);
+        obj.options = options;
+        let html = getHTML();
         let j = document.getElementById(rootId);
         if (!j) {
             j = document.createElement("div")
@@ -134,9 +164,9 @@ export default () => {
         }
 
 
-        listen(".gotapi_share", "mousedown", eventCallbacks.onmousedown);
-        listen(".gotapi_share", "mouseup", eventCallbacks.onmouseup);
-        listen(document.body, "mouseup", (a) => {
+        pida.$(options.trigger).on("mousedown", eventCallbacks.onmousedown);
+        pida.$(options.trigger).on("mouseup", eventCallbacks.onmouseup);
+        pida.addListener(document.body, "mouseup", (a) => {
             a = a || window.event;
             for (a = a.srcElement || a.target; a;) {
                 if (a.id === rootId || a.id === E) return;
@@ -145,12 +175,16 @@ export default () => {
             j.style.display = "none";
         });
     }
-    let obj = {}
+
 
     obj.defaultSetup = defaultSetup
     obj.defaultLeftHandler = defaultLeftHandler;
     obj.defaultMainHandler = defaultMainHandler;
     obj.defaultRightHandler = defaultRightHandler;
+    obj.defaultPopupCallback = defaultPopupCallback;
+    obj.getPopupElement = getPopupElement;
+    obj.getHtml = getHTML;
     obj.init = setup;
+    obj.loadStyle = loadStyle;
     return obj;
 }
