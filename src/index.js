@@ -1,4 +1,4 @@
-import pida from "./pida"
+import pida from "pida"
 
 export default () => {
     let obj = {
@@ -166,14 +166,6 @@ export default () => {
 
         pida.$(options.trigger).on("mousedown", eventCallbacks.onmousedown);
         pida.$(options.trigger).on("mouseup", eventCallbacks.onmouseup);
-        pida.addListener(document.body, "mouseup", (a) => {
-            a = a || window.event;
-            for (a = a.srcElement || a.target; a;) {
-                if (a.id === rootId || a.id === E) return;
-                a = a.parentNode
-            }
-            j.style.display = "none";
-        });
     }
 
 

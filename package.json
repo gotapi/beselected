@@ -1,6 +1,6 @@
 {
   "name": "beselected",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "帮助您快速设定一个在网页上划词触发特定逻辑的应用。",
   "main": "dist/beselected.es.js",
   "scripts": {
@@ -27,6 +27,7 @@
   "dependencies": {
     "good-listener": "^1.2.2",
     "listen": "^1.0.1",
+    "pida": "^1.0.12",
     "vite": "^2.7.13"
   }
 }
